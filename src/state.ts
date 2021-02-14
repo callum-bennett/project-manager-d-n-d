@@ -18,6 +18,14 @@ export default class ProjectState extends State<Project> {
     super();
   }
 
+  static getInstance() {
+    if (this.instance) {
+      return this.instance;
+    }
+    this.instance = new ProjectState();
+    return this.instance;
+  }
+
   addProject(title: string, description: string, numOfPeople: number) {
     const newProject = new Project(
       Math.random().toString(),
@@ -28,16 +36,20 @@ export default class ProjectState extends State<Project> {
     );
 
     this.projects.push(newProject);
-    for (const listenerFn of this.listeners) {
-      listenerFn(this.projects.slice());
+    this.updateListeners();
+  }
+
+  moveProject(projectId: string, newStatus: ProjectStatus) {
+    const project = this.projects.find((prj) => prj.id === projectId);
+    if (project && project.status !== newStatus) {
+      project.status = newStatus;
+      this.updateListeners();
     }
   }
 
-  static getInstance() {
-    if (this.instance) {
-      return this.instance;
+  private updateListeners() {
+    for (const listenerFn of this.listeners) {
+      listenerFn(this.projects.slice());
     }
-    this.instance = new ProjectState();
-    return this.instance;
   }
 }

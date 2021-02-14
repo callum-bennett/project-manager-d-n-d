@@ -2,11 +2,10 @@ import ProjectState from "../state";
 import Project, { ProjectStatus } from "../Project";
 import Component from "./Component";
 import ProjectItem from "./ProjectItem";
+import autobind from "../decorators/autobind";
 
-export default class ProjectList extends Component<
-  HTMLDivElement,
-  HTMLElement
-> {
+export default class ProjectList extends Component<HTMLDivElement, HTMLElement>
+  implements DragTarget {
   assignedProjects: Project[];
 
   constructor(private type: "active" | "finished") {
@@ -18,7 +17,36 @@ export default class ProjectList extends Component<
     this.renderContent();
   }
 
+  @autobind
+  dragOverHandler(event: DragEvent) {
+    if (event.dataTransfer!.types[0] === "text/plain") {
+      event.preventDefault();
+      const listEl = this.element.querySelector("ul")!;
+      listEl.classList.add("droppable");
+    }
+  }
+
+  @autobind
+  dropHandler(event: DragEvent) {
+    const prjId = event.dataTransfer!.getData("text/plain");
+    const state = ProjectState.getInstance();
+    state.moveProject(
+      prjId,
+      this.type === "active" ? ProjectStatus.Active : ProjectStatus.Finished
+    );
+  }
+
+  @autobind
+  dragLeaveHandler(_: DragEvent) {
+    const listEl = this.element.querySelector("ul")!;
+    listEl.classList.remove("droppable");
+  }
+
   configure() {
+    this.element.addEventListener("dragover", this.dragOverHandler);
+    this.element.addEventListener("dragleave", this.dragLeaveHandler);
+    this.element.addEventListener("drop", this.dropHandler);
+
     const state = ProjectState.getInstance();
     state.addListener((projects: Project[]) => {
       const relevantProjects = projects.filter((prj) => {

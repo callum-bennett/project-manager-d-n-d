@@ -1,10 +1,10 @@
 import Component from "./Component";
 import Project from "../Project";
+import autobind from "../decorators/autobind";
 
-export default class ProjectItem extends Component<
-  HTMLUListElement,
-  HTMLLIElement
-> {
+export default class ProjectItem
+  extends Component<HTMLUListElement, HTMLLIElement>
+  implements Draggable {
   private project: Project;
 
   get persons() {
@@ -23,7 +23,20 @@ export default class ProjectItem extends Component<
     this.renderContent();
   }
 
-  configure() {}
+  dragEndHandler(_: DragEvent) {
+    // console.log("Drag end");
+  }
+
+  @autobind
+  dragStartHandler(event: DragEvent) {
+    event.dataTransfer!.setData("text/plain", this.project.id);
+    event.dataTransfer!.effectAllowed = "move";
+  }
+
+  configure() {
+    this.element.addEventListener("dragstart", this.dragStartHandler);
+    this.element.addEventListener("dragend", this.dragEndHandler);
+  }
 
   renderContent() {
     this.element.querySelector("h2")!.textContent = this.project.title;
