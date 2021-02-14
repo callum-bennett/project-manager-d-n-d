@@ -1,11 +1,22 @@
 import Project, { ProjectStatus } from "./Project";
 
-type Listener = (items: Project[]) => void;
+type Listener<T> = (items: T[]) => void;
 
-export default class ProjectState {
-  private listeners: Listener[] = [];
+class State<T> {
+  protected listeners: Listener<T>[] = [];
+
+  addListener(listenerFn: Listener<T>) {
+    this.listeners.push(listenerFn);
+  }
+}
+
+export default class ProjectState extends State<Project> {
   private projects: any[] = [];
   private static instance: ProjectState;
+
+  private constructor() {
+    super();
+  }
 
   addProject(title: string, description: string, numOfPeople: number) {
     const newProject = new Project(
@@ -28,9 +39,5 @@ export default class ProjectState {
     }
     this.instance = new ProjectState();
     return this.instance;
-  }
-
-  addListener(listenerFn: Listener) {
-    this.listeners.push(listenerFn);
   }
 }
