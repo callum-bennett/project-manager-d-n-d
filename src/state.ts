@@ -1,15 +1,20 @@
+import Project, { ProjectStatus } from "./Project";
+
+type Listener = (items: Project[]) => void;
+
 export default class ProjectState {
-  private listeners: any[] = [];
+  private listeners: Listener[] = [];
   private projects: any[] = [];
   private static instance: ProjectState;
 
   addProject(title: string, description: string, numOfPeople: number) {
-    const newProject = {
-      id: Math.random().toString(),
-      title: title,
-      description: description,
-      people: numOfPeople,
-    };
+    const newProject = new Project(
+      Math.random().toString(),
+      title,
+      description,
+      numOfPeople,
+      ProjectStatus.Active
+    );
 
     this.projects.push(newProject);
     for (const listenerFn of this.listeners) {
@@ -25,7 +30,7 @@ export default class ProjectState {
     return this.instance;
   }
 
-  addListener(listenerFn: Function) {
+  addListener(listenerFn: Listener) {
     this.listeners.push(listenerFn);
   }
 }
