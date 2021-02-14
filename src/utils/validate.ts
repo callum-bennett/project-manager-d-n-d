@@ -14,10 +14,10 @@ export default function validate(validatableInput: Validatable) {
     isValid = isValid && value.length < validatableInput.maxLength;
   }
   if (validatableInput.min != null && typeof value === "number") {
-    isValid = isValid && value > validatableInput.min;
+    isValid = isValid && value >= validatableInput.min;
   }
   if (validatableInput.max != null && typeof value === "number") {
-    isValid = isValid && value < validatableInput.max;
+    isValid = isValid && value <= validatableInput.max;
   }
 
   return isValid;
